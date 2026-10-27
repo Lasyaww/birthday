@@ -1,0 +1,13 @@
+{
+  "name": "only-for-my-bori",
+  "version": "1.0.0",
+  "description": "Birthday website for Bori — made with love by lassi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["birthday", "bori", "lassi", "gift"],
+  "author": "lassi",
+  "license": "ISC"
+}
