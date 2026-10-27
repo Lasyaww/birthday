@@ -129,15 +129,34 @@ function loadLocalSettings() {
 }
 
 async function loadServerSettings() {
+  // 1. Try relative api/settings (works with Node server in root or reverse proxy)
   try {
-    const res = await fetch("/api/settings");
-    if (res.ok) {
+    const res = await fetch("api/settings").catch(() => null);
+    if (res && res.ok) {
       const serverData = await res.json();
       state.settings = { ...state.settings, ...serverData };
       saveSettingsLocally();
+      return;
     }
   } catch (e) {
-    // Backend optional: running statically
+    // Backend optional
+  }
+
+  // 2. Fallback to static data.json (for GitHub Pages / static hosting)
+  try {
+    const res = await fetch("data.json").catch(() => null);
+    if (res && res.ok) {
+      const staticData = await res.json();
+      const saved = localStorage.getItem("bori_birthday_settings");
+      if (!saved) {
+        state.settings = { ...state.settings, ...staticData };
+        saveSettingsLocally();
+      } else if (!state.settings.photos || state.settings.photos.length === 0) {
+        state.settings.photos = staticData.photos || DEFAULT_SETTINGS.photos;
+      }
+    }
+  } catch (e) {
+    // Statically running without data.json
   }
 }
 
@@ -145,17 +164,17 @@ function saveSettingsLocally() {
   try {
     localStorage.setItem("bori_birthday_settings", JSON.stringify(state.settings));
   } catch (e) {
-    console.warn("Failed to save to local storage:", e);
+    console.warn("Failed to save to local storage (quota or security):", e);
   }
 }
 
 async function saveSettingsToServer(updatedFields) {
   try {
-    await fetch("/api/settings", {
+    await fetch("api/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedFields)
-    });
+    }).catch(() => null);
   } catch (e) {
     // Offline / static mode
   }
@@ -811,11 +830,19 @@ function setupCakeEvents() {
   const musicPlayBtn = document.getElementById("btn-music-play");
   const musicReplayBtn = document.getElementById("btn-music-replay");
 
-  // Allow tapping individual flames directly on the SVG cake
+  // Allow tapping individual flames or candles directly on the SVG cake
   for (let i = 1; i <= 5; i++) {
     const flame = document.getElementById(`flame-${i}`);
+    const candle = document.getElementById(`candle-${i}`);
+    const handler = (e) => {
+      e.stopPropagation();
+      extinguishCandle(i - 1);
+    };
     if (flame) {
-      flame.addEventListener("click", () => extinguishCandle(i - 1));
+      flame.addEventListener("click", handler);
+    }
+    if (candle) {
+      candle.addEventListener("click", handler);
     }
   }
 
@@ -1074,17 +1101,23 @@ function renderGallery() {
 
   grid.innerHTML = "";
   const photos = state.settings.photos || DEFAULT_SETTINGS.photos;
+  const isMobile = window.innerWidth <= 680;
 
   photos.forEach((photo, idx) => {
     const card = document.createElement("article");
     card.className = `polaroid-card`;
-    card.style.transform = `rotate(${photo.rotation || 0}deg)`;
+    // Only apply decorative tilt on wider viewports to prevent side overflow on narrow phones
+    if (!isMobile && photo.rotation) {
+      card.style.transform = `rotate(${photo.rotation}deg)`;
+    } else {
+      card.style.transform = "none";
+    }
     card.setAttribute("data-index", idx);
 
     card.innerHTML = `
       <div class="washi-tape ${photo.washiClass || 'washi-pink'}"></div>
       <div class="polaroid-img-frame">
-        <img src="${photo.src}" alt="${escapeHtml(photo.title || 'Memory')}" class="polaroid-img" loading="lazy" />
+        <img src="${photo.src}" alt="${escapeHtml(photo.title || 'Memory')}" class="polaroid-img" loading="eager" decoding="async" />
         <span class="doodle-badge">${escapeHtml(photo.sticker || 'us ♡')}</span>
       </div>
       <div class="polaroid-footer">
@@ -1095,6 +1128,22 @@ function renderGallery() {
         </div>
       </div>
     `;
+
+    const imgEl = card.querySelector(".polaroid-img");
+    if (imgEl) {
+      imgEl.onerror = () => {
+        if (!imgEl.dataset.retried) {
+          imgEl.dataset.retried = "1";
+          if (photo.src.startsWith("./")) {
+            imgEl.src = photo.src.substring(2);
+          } else if (!photo.src.startsWith("data:") && !photo.src.startsWith("http")) {
+            imgEl.src = "./" + photo.src;
+          } else if (DEFAULT_SETTINGS.photos[idx]) {
+            imgEl.src = DEFAULT_SETTINGS.photos[idx].src;
+          }
+        }
+      };
+    }
 
     card.addEventListener("click", () => openLightbox(photo));
     grid.appendChild(card);
@@ -1188,6 +1237,7 @@ function startWishFlood() {
   stage.innerHTML = "";
 
   const shuffledWishes = [...BIRTHDAY_WISHES].sort(() => Math.random() - 0.5);
+  const isMobile = window.innerWidth <= 680;
   const types = ["handwritten", "bubble", "sticker", "mini-card", "ghostie"];
 
   function spawnWish(type, text, customStartX) {
@@ -1196,17 +1246,24 @@ function startWishFlood() {
     const el = document.createElement("div");
     el.className = "floating-wish";
 
-    // Spread uniformly across full viewport width (3vw to 88vw)
-    const startX = customStartX !== undefined ? customStartX : Math.floor(Math.random() * 86) + 3;
-    const duration = (6.2 + Math.random() * 3.8).toFixed(1); // 6.2s to 10s
-    const rotStart = `${(Math.random() * 16 - 8).toFixed(1)}deg`;
-    const rotMid = `${(Math.random() * 14 - 7).toFixed(1)}deg`;
-    const rotEnd = `${(Math.random() * 16 - 8).toFixed(1)}deg`;
+    // Spread safely across viewport width, ensuring no right overflow on narrow phones
+    let startX;
+    if (isMobile) {
+      startX = customStartX !== undefined ? Math.min(customStartX, 52) : Math.floor(Math.random() * 52) + 4;
+    } else {
+      startX = customStartX !== undefined ? customStartX : Math.floor(Math.random() * 84) + 4;
+    }
 
-    const d1 = `${Math.round(Math.random() * 60 - 30)}px`;
-    const d2 = `${Math.round(Math.random() * 80 - 40)}px`;
-    const d3 = `${Math.round(Math.random() * 60 - 30)}px`;
-    const d4 = `${Math.round(Math.random() * 80 - 40)}px`;
+    const duration = (isMobile ? (5.5 + Math.random() * 3.0) : (6.2 + Math.random() * 3.8)).toFixed(1);
+    const rotStart = `${(Math.random() * 14 - 7).toFixed(1)}deg`;
+    const rotMid = `${(Math.random() * 12 - 6).toFixed(1)}deg`;
+    const rotEnd = `${(Math.random() * 14 - 7).toFixed(1)}deg`;
+
+    const maxDrift = isMobile ? 24 : 40;
+    const d1 = `${Math.round(Math.random() * (maxDrift * 2) - maxDrift)}px`;
+    const d2 = `${Math.round(Math.random() * (maxDrift * 2) - maxDrift)}px`;
+    const d3 = `${Math.round(Math.random() * (maxDrift * 2) - maxDrift)}px`;
+    const d4 = `${Math.round(Math.random() * (maxDrift * 2) - maxDrift)}px`;
 
     el.style.setProperty("--start-x", `${startX}vw`);
     el.style.setProperty("--float-duration", `${duration}s`);
@@ -1249,24 +1306,25 @@ function startWishFlood() {
     }, parseFloat(duration) * 1000 + 200);
   }
 
-  // Gradually increase density: 36 wishes spread across the entire screen from edge to edge
-  const totalWishes = 36;
+  // Adjust density: 18 wishes on mobile (clean, fast, no lag), 36 on desktop
+  const totalWishes = isMobile ? 18 : 36;
+  const laneCount = isMobile ? 2 : 4;
+  const laneWidth = isMobile ? 40 : 21;
+
   for (let i = 0; i < totalWishes; i++) {
     let delay = 0;
-    if (i < 5) {
-      delay = i * 450 + Math.random() * 200;
+    if (i < 4) {
+      delay = i * (isMobile ? 380 : 450) + Math.random() * 150;
     } else {
-      delay = 2200 + (i - 5) * 160 + Math.random() * 120;
+      delay = (isMobile ? 1600 : 2200) + (i - 4) * (isMobile ? 200 : 160) + Math.random() * 100;
     }
 
     const t = types[i % types.length];
     const msg = shuffledWishes[i % shuffledWishes.length];
 
-    // Distribute into 4 wide horizontal lanes across the whole viewport width
-    const lane = i % 4; // 0, 1, 2, 3
-    const laneWidth = 21; // ~21vw per lane
-    const minX = 3 + lane * laneWidth;
-    const startX = Math.floor(minX + Math.random() * (laneWidth - 3));
+    const lane = i % laneCount;
+    const minX = 4 + lane * laneWidth;
+    const startX = Math.floor(minX + Math.random() * (laneWidth - 6));
 
     const timer = setTimeout(() => {
       spawnWish(t, msg, startX);
@@ -1274,13 +1332,14 @@ function startWishFlood() {
     state.wishFloodTimers.push(timer);
   }
 
-  // After the flood runs for ~6.8 seconds, reveal the centered pink card
+  // Reveal final surprise card (~5.2s on mobile, ~6.8s on desktop)
+  const cardDelay = isMobile ? 5200 : 6800;
   const cardTimer = setTimeout(() => {
     if (!state.wishFloodActive) return;
     if (card) {
       card.classList.remove("hidden");
     }
-  }, 6800);
+  }, cardDelay);
   state.wishFloodTimers.push(cardTimer);
 }
 
@@ -1305,7 +1364,7 @@ function dismissWishFlood() {
     if (card) card.classList.add("hidden");
     if (stage) stage.innerHTML = "";
     state.wishFloodActive = false;
-  }, 500);
+  }, 450);
 }
 
 function setupGalleryEvents() {
@@ -1324,6 +1383,25 @@ function setupGalleryEvents() {
     });
   }
 
+  // Close 'X' button on final surprise card
+  const cardCloseBtn = document.getElementById("btn-close-wish-flood");
+  if (cardCloseBtn) {
+    cardCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissWishFlood();
+    });
+  }
+
+  // Backdrop click dismissal on overlay
+  const overlay = document.getElementById("wish-flood-overlay");
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay || e.target.id === "wish-flood-stage") {
+        dismissWishFlood();
+      }
+    });
+  }
+
   // Lightbox close events
   const lightboxModal = document.getElementById("lightbox-modal");
   const lightboxClose = document.getElementById("lightbox-close");
@@ -1339,6 +1417,16 @@ function setupGalleryEvents() {
       }
     });
   }
+
+  // Dismiss on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (state.wishFloodActive) dismissWishFlood();
+      if (lightboxModal && !lightboxModal.classList.contains("hidden")) {
+        lightboxModal.classList.add("hidden");
+      }
+    }
+  });
 }
 
 // ==========================================
@@ -1430,7 +1518,7 @@ function setupOwnerEvents() {
     });
   }
 
-  // Gallery File Upload
+  // Gallery File Upload with client-side canvas compression for mobile persistence
   const fileInput = document.getElementById("gallery-file-input");
   if (fileInput) {
     fileInput.addEventListener("change", (e) => {
@@ -1439,21 +1527,25 @@ function setupOwnerEvents() {
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        const newPhoto = {
-          id: `photo-${Date.now()}`,
-          src: event.target.result,
-          title: file.name.replace(/\.[^/.]+$/, ""),
-          caption: "our cute moment ♡",
-          badge: "new memory",
-          sticker: "love ♡",
-          rotation: (Math.random() * 4 - 2).toFixed(1)
-        };
-        state.settings.photos.push(newPhoto);
-        saveSettingsLocally();
-        saveSettingsToServer({ photos: state.settings.photos });
-        renderGallery();
-        populateOwnerPhotoList();
-        showOwnerToast("new photo added! 💗");
+        const rawData = event.target.result;
+        // Compress high-res mobile photos (e.g. 10MB down to ~150KB) to ensure persistent localStorage saving without QuotaExceededError
+        compressImage(rawData, 1200, 0.82, (compressedSrc) => {
+          const newPhoto = {
+            id: `photo-${Date.now()}`,
+            src: compressedSrc,
+            title: file.name.replace(/\.[^/.]+$/, ""),
+            caption: "our cute moment ♡",
+            badge: "new memory",
+            sticker: "love ♡",
+            rotation: (Math.random() * 4 - 2).toFixed(1)
+          };
+          state.settings.photos.push(newPhoto);
+          saveSettingsLocally();
+          saveSettingsToServer({ photos: state.settings.photos });
+          renderGallery();
+          populateOwnerPhotoList();
+          showOwnerToast("new photo added! 💗");
+        });
       };
       reader.readAsDataURL(file);
     });
@@ -1775,4 +1867,37 @@ function setupEventListeners() {
   setupCakeEvents();
   setupGalleryEvents();
   setupOwnerEvents();
+}
+
+/**
+ * Client-side canvas image compression.
+ * Resizes large phone camera photos (e.g. 5-15MB) to maxDim x maxDim
+ * and converts to a lightweight JPEG Data URL (~150KB) so that it persists
+ * reliably in browser localStorage without exceeding storage limits.
+ */
+function compressImage(dataUrl, maxDim, quality, callback) {
+  const img = new Image();
+  img.onload = () => {
+    let { width, height } = img;
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+    const compressed = canvas.toDataURL("image/jpeg", quality);
+    callback(compressed);
+  };
+  img.onerror = () => {
+    callback(dataUrl);
+  };
+  img.src = dataUrl;
 }

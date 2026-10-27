@@ -5,34 +5,37 @@
    ======================================================== */
 
 :root {
-  --color-bg: #fff5f7;
-  --color-bg-milky: #fffafb;
-  --color-card-bg: rgba(255, 255, 255, 0.92);
-  --color-card-border: rgba(255, 182, 193, 0.5);
-  
-  --color-pink-light: #ffe5ec;
-  --color-pink-soft: #ffd1dc;
-  --color-pink-blush: #ffb3c6;
-  --color-pink-primary: #ff8fab;
-  --color-pink-deep: #fb6f92;
-  --color-pink-dark: #e05378;
+  color-scheme: light !important;
 
-  --color-lavender-soft: #ede7f6;
-  --color-lavender-accent: #d8b4e2;
-  --color-lavender-deep: #9d80c3;
-
-  --color-text-main: #4a3e3d;
-  --color-text-subtle: #7a6866;
-  --color-text-muted: #9e8a88;
+  /* Pastel-Aware Theme Palette */
+  --color-bg: #FFF1F5;             /* Baby pink */
+  --color-bg-milky: #FFFCFD;       /* Milky white */
+  --color-card-bg: rgba(255, 252, 253, 0.94);
+  --color-card-border: #FFD6E3;    /* Blush pink border */
   
-  --shadow-soft: 0 10px 30px rgba(255, 143, 171, 0.12);
-  --shadow-card: 0 16px 40px rgba(251, 111, 146, 0.14);
-  --shadow-btn: 0 6px 18px rgba(255, 143, 171, 0.35);
-  --shadow-hover: 0 12px 28px rgba(255, 143, 171, 0.45);
+  --color-pink-light: #FFF1F5;     /* Baby pink */
+  --color-pink-soft: #FFD6E3;      /* Blush pink */
+  --color-pink-blush: #FFD6E3;     /* Blush pink */
+  --color-pink-primary: #FF7FA3;   /* Soft rose */
+  --color-pink-deep: #FF5A87;      /* Vivid rose accent */
+  --color-pink-dark: #D43F6B;      /* Deep rose for emphasis */
+
+  --color-lavender-soft: #F4EFFF;  /* Very soft lavender */
+  --color-lavender-accent: #E9DFFF;/* Pastel lavender */
+  --color-lavender-deep: #8E71B8;  /* Muted plum lavender */
+
+  --color-text-main: #4E2A34;      /* Dark rose for readable contrast */
+  --color-text-subtle: #724C58;    /* Muted plum text */
+  --color-text-muted: #916B77;     /* Soft plum text */
+  
+  --shadow-soft: 0 8px 24px rgba(255, 127, 163, 0.12);
+  --shadow-card: 0 14px 36px rgba(255, 127, 163, 0.15);
+  --shadow-btn: 0 6px 18px rgba(255, 127, 163, 0.32);
+  --shadow-hover: 0 10px 24px rgba(255, 127, 163, 0.42);
 
   --radius-sm: 14px;
-  --radius-md: 22px;
-  --radius-lg: 32px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
   --radius-full: 9999px;
 
   --font-main: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -53,19 +56,27 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  color-scheme: light !important;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-main);
   background-color: var(--color-bg);
   background-image: 
-    radial-gradient(#ffd1dc 1.2px, transparent 1.2px), 
-    radial-gradient(#ede7f6 1.2px, var(--color-bg) 1.2px);
+    radial-gradient(#FFD6E3 1.2px, transparent 1.2px), 
+    radial-gradient(#E9DFFF 1.2px, var(--color-bg) 1.2px);
   background-size: 36px 36px;
   background-position: 0 0, 18px 18px;
   color: var(--color-text-main);
+  color-scheme: light !important;
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100vw;
   overflow-x: hidden;
   position: relative;
   text-transform: lowercase; /* cute gen-z aesthetic */
@@ -735,15 +746,17 @@ body {
   border: 1.5px solid var(--color-pink-soft);
   border-radius: var(--radius-full);
   font-size: 1.05rem;
-  color: var(--color-text-main);
-  background: var(--color-bg-milky);
+  color: var(--color-text-main) !important;
+  -webkit-text-fill-color: var(--color-text-main) !important;
+  background-color: var(--color-bg-milky) !important;
+  color-scheme: light !important;
   outline: none;
   transition: var(--transition-smooth);
 }
 
 .cute-input:focus {
   border-color: var(--color-pink-primary);
-  background: #ffffff;
+  background-color: #ffffff !important;
   box-shadow: 0 0 0 4px rgba(255, 143, 171, 0.2);
 }
 
@@ -754,8 +767,10 @@ body {
   border: 1.5px solid var(--color-pink-soft);
   border-radius: var(--radius-md);
   font-size: 1rem;
-  color: var(--color-text-main);
-  background: var(--color-bg-milky);
+  color: var(--color-text-main) !important;
+  -webkit-text-fill-color: var(--color-text-main) !important;
+  background-color: var(--color-bg-milky) !important;
+  color-scheme: light !important;
   outline: none;
   resize: vertical;
   line-height: 1.6;
@@ -2011,18 +2026,48 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.85);
-  width: 90%;
-  max-width: 440px;
-  background: #ffffff;
-  border: 2.5px solid var(--color-pink-primary);
+  width: min(92%, 420px);
+  max-height: min(88dvh, 520px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #FFFCFD;
+  border: 2px solid var(--color-pink-primary);
   border-radius: var(--radius-lg);
-  padding: 34px 24px;
+  padding: 30px 22px 24px;
   text-align: center;
-  box-shadow: 0 24px 70px rgba(251, 111, 146, 0.4);
-  z-index: 950;
+  box-shadow: 0 20px 60px rgba(255, 127, 163, 0.35);
+  z-index: 999;
   pointer-events: auto;
   opacity: 0;
-  animation: wishCardPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: wishCardPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.wish-card-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 50%;
+  background: var(--color-pink-light);
+  border: 1px solid var(--color-pink-soft);
+  color: var(--color-pink-deep);
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  touch-action: manipulation;
+  z-index: 10;
+}
+
+.wish-card-close:hover {
+  background: var(--color-pink-soft);
+  transform: scale(1.08);
 }
 
 @keyframes wishCardPop {
@@ -2031,7 +2076,7 @@ body {
     transform: translate(-50%, -50%) scale(0.75);
   }
   70% {
-    transform: translate(-50%, -50%) scale(1.04);
+    transform: translate(-50%, -50%) scale(1.03);
   }
   100% {
     opacity: 1;
@@ -2048,25 +2093,25 @@ body {
   border-radius: var(--radius-full);
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .wish-card-heading {
   font-family: var(--font-main);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--color-pink-deep);
   line-height: 1.35;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .wish-card-subheading {
   font-family: var(--font-main);
-  font-size: 1.1rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--color-text-main);
-  line-height: 1.5;
-  margin-bottom: 24px;
+  line-height: 1.45;
+  margin-bottom: 20px;
 }
 
 /* Reduced Motion preference */
@@ -2080,7 +2125,7 @@ body {
 }
 
 /* ========================================================
-   RESPONSIVENESS (Mobile, Tablet, Desktop)
+   RESPONSIVENESS (Desktop, Tablet, Mobile)
    ======================================================== */
 @media (max-width: 1024px) {
   .polaroid-grid {
@@ -2097,64 +2142,466 @@ body {
   }
 }
 
+/* Phones & Narrow Screens (<= 680px) */
 @media (max-width: 680px) {
+  .top-nav {
+    padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-left)) 10px max(14px, env(safe-area-inset-right));
+  }
+
+  .nav-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
   .app-container {
-    padding: 16px 14px 36px;
+    padding: 14px clamp(12px, 3.5vw, 18px) clamp(30px, 6vw, 44px);
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
 
   .screen-card {
-    padding: 28px 16px;
-    border-radius: 24px;
+    padding: clamp(22px, 5vw, 32px) clamp(14px, 4vw, 22px);
+    border-radius: 22px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  .polaroid-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    max-width: 380px;
-    margin: 0 auto 32px;
+  /* Headings & Subtitles fitting naturally */
+  .main-heading {
+    font-size: clamp(1.65rem, 5.5vw, 1.95rem);
+    line-height: 1.3;
   }
 
-  .polaroid-grid .polaroid-card:nth-child(3) {
-    grid-column: auto;
+  .subtitle {
+    font-size: clamp(0.95rem, 3.8vw, 1.08rem);
+    line-height: 1.45;
+  }
+
+  /* Hello Kitty & Meme Punchline */
+  .kitty-stage-wrapper {
+    margin: 12px auto 22px;
     max-width: 100%;
   }
 
-  .main-heading {
-    font-size: 1.8rem;
+  .kitty-stage {
+    width: min(250px, calc(100vw - 64px));
+    height: min(300px, calc((100vw - 64px) * 1.2));
+    border-radius: 20px;
   }
 
+  .blast-img-container {
+    width: min(230px, calc(100vw - 76px));
+    height: min(230px, calc(100vw - 76px));
+    aspect-ratio: 1 / 1;
+    border-radius: 18px;
+  }
+
+  /* Cake & Candles */
+  .cake-illustration-container {
+    width: 100%;
+    max-width: 290px;
+    margin: 8px auto 12px;
+  }
+
+  .kawaii-character {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .cake-svg {
+    width: 100%;
+    height: auto;
+    max-height: 310px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  /* Buttons & Touch Targets */
+  .candle-controls {
+    width: 100%;
+    max-width: 320px;
+    margin: 12px auto 0;
+    gap: 10px;
+  }
+
+  .cute-btn {
+    padding: 13px clamp(20px, 5vw, 28px);
+    min-height: 48px;
+    font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+    touch-action: manipulation;
+  }
+
+  .candle-controls .cute-btn {
+    width: min(280px, 100%);
+  }
+
+  /* Post-Candle Celebration */
   .celebration-heading {
-    font-size: 1.6rem;
+    font-size: clamp(1.45rem, 5vw, 1.75rem);
+    line-height: 1.3;
   }
 
   .celebration-message {
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 3.8vw, 1.05rem);
+    line-height: 1.5;
   }
 
-  .letter-heading {
-    font-size: 2.3rem;
-  }
-
-  .digital-letter-card {
-    padding: 28px 18px;
-  }
-
-  .letter-body {
-    font-size: 0.98rem;
-    line-height: 1.65;
-  }
-
-  .kitty-stage {
-    width: 250px;
-    height: 300px;
+  .singing-cat-card {
+    padding: 16px 12px 14px;
+    margin: 12px auto 16px;
+    width: 100%;
+    max-width: 340px;
   }
 
   .cat-song-heading {
-    font-size: 1.8rem;
+    font-size: clamp(1.45rem, 5vw, 1.75rem);
+    line-height: 1.25;
   }
 
   .singing-cat-stage {
-    max-width: 310px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .singing-cat-svg {
+    width: 100%;
+    height: auto;
+    max-height: 195px;
+  }
+
+  .music-box-player {
+    padding: 12px 10px;
+    width: 100%;
+  }
+
+  .music-title-bar {
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .music-title {
+    font-size: clamp(0.82rem, 3.2vw, 0.92rem);
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .music-controls-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .music-controls-row .mini-btn {
+    min-height: 42px;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+  }
+
+  /* One Photo Card Per Row in Mobile Gallery */
+  .polaroid-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: min(390px, 100%);
+    margin: 0 auto 28px;
+  }
+
+  .polaroid-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px 14px 18px;
+    border-radius: 16px;
+    transform: rotate(0deg) !important; /* Reset tilt on narrow screens to prevent side clipping */
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  .polaroid-img-frame {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .polaroid-img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .polaroid-caption {
+    font-size: clamp(1.15rem, 4.2vw, 1.35rem);
+    line-height: 1.35;
+    margin-top: 10px;
+  }
+
+  /* Birthday Letter on Mobile */
+  .letter-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .digital-letter-card {
+    padding: clamp(22px, 5vw, 36px) clamp(16px, 4vw, 24px);
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .letter-heading {
+    font-size: clamp(1.85rem, 6vw, 2.35rem);
+    line-height: 1.25;
+  }
+
+  .letter-subtitle {
+    font-size: clamp(0.92rem, 3.5vw, 1.05rem);
+    line-height: 1.45;
+  }
+
+  .letter-body {
+    font-size: clamp(0.95rem, 3.8vw, 1.04rem);
+    line-height: 1.7;
+  }
+
+  .letter-body p {
+    margin-bottom: 16px;
+  }
+
+  .letter-postscript {
+    font-size: clamp(0.85rem, 3.4vw, 0.92rem);
+    padding: 10px 14px;
+    margin-top: 18px;
+    line-height: 1.5;
+  }
+
+  .letter-footer-note {
+    font-size: clamp(1.12rem, 4.2vw, 1.35rem);
+    margin-top: 22px;
+  }
+
+  .public-footer {
+    padding: 20px 12px max(24px, env(safe-area-inset-bottom));
+  }
+
+  /* Floating Wishes on Mobile */
+  .floating-wish {
+    pointer-events: none !important; /* Prevent floating wishes from blocking touches/clicks on mobile */
+    max-width: min(85vw, 260px);
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+    padding: 6px 12px;
+    font-size: clamp(0.8rem, 3.2vw, 0.9rem);
+  }
+
+  .wish-ghostie {
+    pointer-events: none !important;
+  }
+
+  .wish-flood-card {
+    width: min(92%, 390px);
+    padding: 24px 16px 20px;
+  }
+
+  .wish-card-heading {
+    font-size: 1.25rem;
+  }
+
+  .wish-card-subheading {
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+
+  /* Lightbox on Mobile */
+  .lightbox-content {
+    width: 95%;
+    max-width: 520px;
+    padding: 10px;
+  }
+
+  .lightbox-img {
+    max-height: 70dvh;
+  }
+
+  .lightbox-close {
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
   }
 }
+
+/* Extra-Narrow Screens (320px - 360px wide) */
+@media (max-width: 360px) {
+  .app-container {
+    padding: 12px 10px 28px;
+  }
+
+  .screen-card {
+    padding: 18px 12px;
+    border-radius: 18px;
+  }
+
+  .kitty-stage {
+    width: min(230px, calc(100vw - 48px));
+    height: min(280px, calc((100vw - 48px) * 1.2));
+  }
+
+  .blast-img-container {
+    width: min(210px, calc(100vw - 56px));
+    height: min(210px, calc(100vw - 56px));
+  }
+
+  .cake-illustration-container {
+    max-width: 260px;
+  }
+
+  .singing-cat-card {
+    padding: 14px 10px;
+  }
+
+  .singing-cat-stage {
+    max-width: 250px;
+  }
+
+  .digital-letter-card {
+    padding: 18px 12px;
+  }
+
+  .cute-btn {
+    padding: 12px 18px;
+    font-size: 0.92rem;
+  }
+}
+
+/* ========================================================
+   DARK MODE PASTEL PRESERVATION
+   Ensures soft pastel colors, cards, buttons, text, and inputs
+   remain beautifully pastel and never turn harsh black or dark gray!
+   ======================================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
+
+  html, body {
+    color-scheme: light !important;
+    background-color: #FFF1F5 !important;
+    color: #4E2A34 !important;
+    background-image: 
+      radial-gradient(#FFD6E3 1.2px, transparent 1.2px), 
+      radial-gradient(#E9DFFF 1.2px, #FFF1F5 1.2px) !important;
+  }
+
+  .screen-card,
+  .intro-card,
+  .secret-question-card,
+  .singing-cat-card,
+  .digital-letter-card,
+  .polaroid-card,
+  .owner-dialog,
+  .wish-flood-card,
+  .music-box-player,
+  .kitty-stage,
+  .intro-reaction-box {
+    background-color: #FFFCFD !important;
+    color: #4E2A34 !important;
+    border-color: #FFD6E3 !important;
+  }
+
+  .kitty-img,
+  .blast-img,
+  .polaroid-img,
+  .lightbox-img,
+  .owner-thumb {
+    filter: none !important;
+    -webkit-filter: none !important;
+    opacity: 1 !important;
+    color-scheme: light !important;
+  }
+
+  .card-tag,
+  .wish-card-badge,
+  .gallery-tag,
+  .login-badge,
+  .owner-badge {
+    background-color: #FFD6E3 !important;
+    color: #724C58 !important;
+    border-color: #FFB3C6 !important;
+  }
+
+  .reaction-text,
+  .kitty-tap-hint,
+  .cue-text,
+  .continue-cue-text {
+    color: #4E2A34 !important;
+  }
+
+  .cute-input,
+  .cute-textarea,
+  input[type="text"],
+  input[type="password"],
+  textarea {
+    color-scheme: light !important;
+    background-color: #FFFCFD !important;
+    color: #4E2A34 !important;
+    -webkit-text-fill-color: #4E2A34 !important;
+    border-color: #FFD6E3 !important;
+  }
+
+  .cute-btn.primary-btn,
+  .primary-btn {
+    background: linear-gradient(135deg, #FF7FA3 0%, #FF5A87 100%) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  .cute-btn.secondary-btn,
+  .secondary-btn {
+    background-color: #FFFCFD !important;
+    color: #FF5A87 !important;
+    -webkit-text-fill-color: #FF5A87 !important;
+    border-color: #FFD6E3 !important;
+  }
+
+  .nav-btn,
+  .wish-card-close {
+    background-color: #FFFCFD !important;
+    border-color: #FFD6E3 !important;
+    color: #FF5A87 !important;
+  }
+
+  .top-nav {
+    background: rgba(255, 241, 245, 0.85) !important;
+    border-bottom-color: rgba(255, 214, 227, 0.7) !important;
+  }
+
+  .main-heading,
+  .letter-heading,
+  .cake-heading,
+  .cat-song-heading,
+  .celebration-heading,
+  .wish-card-heading {
+    color: #4E2A34 !important;
+  }
+
+  .subtitle,
+  .letter-subtitle,
+  .celebration-message,
+  .letter-body,
+  .instruction-text,
+  .polaroid-caption {
+    color: #4E2A34 !important;
+  }
+
+  .polaroid-img-frame {
+    background: #FFF1F5 !important;
+    border-color: #FFD6E3 !important;
+  }
+}
+

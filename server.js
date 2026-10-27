@@ -157,8 +157,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Static file serving
-  let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+  // Static file serving with URL decoding and mobile asset caching
+  let decodedPath = pathname;
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch (e) {
+    decodedPath = pathname;
+  }
+
+  let safePath = path.normalize(decodedPath).replace(/^(\.\.[\/\\])+/, '');
   if (safePath === '/' || safePath === '\\') {
     safePath = '/index.html';
   }
@@ -173,7 +180,14 @@ const server = http.createServer((req, res) => {
 
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, { 'Content-Type': contentType });
+    const isImage = ext === '.jpeg' || ext === '.jpg' || ext === '.png' || ext === '.gif' || ext === '.webp' || ext === '.svg';
+
+    const headers = { 'Content-Type': contentType };
+    if (isImage) {
+      headers['Cache-Control'] = 'public, max-age=86400, stale-while-revalidate=604800';
+    }
+
+    res.writeHead(200, headers);
     fs.createReadStream(filePath).pipe(res);
   });
 });
